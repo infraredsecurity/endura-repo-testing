@@ -1,0 +1,68 @@
+Package: endura-build-tools
+Version: 0.1.11.6c12c1a
+Architecture: amd64
+Maintainer: Infrared Security, LLC.
+Installed-Size: 9872
+Filename: ./endura-build-tools_0.1.11.6c12c1a_amd64.deb
+Size: 2688960
+MD5sum: 73d77ab06cb3f7885e4ba97dc012ddad
+SHA1: 2ae070d2fd1e1d4fb0c74320b259c9bb5e3999d3
+SHA256: db1f12087c35e2b88c7d0b28b4da0dd3659056464fe771ab04cc02b93531176d
+Section: Development
+Priority: optional
+Description: build tools
+ # endura-build-tools
+ .
+ TBD
+ .
+ ## Environment Settings
+ .
+ - **ENDURA_BATCHER_AUTOFLUSH**: true/false (default: false)
+ - **ENDURA_LOG_LEVEL**: level of logging (default: info, cli supported)
+ - **ENDURA_LOG_FILE**: save logs to this file (default: undefined, cli
+ supported)
+ - **ENDURA_TEAM_SERVER**: https://your.team.server (default: undefined, cli
+ supported)
+ .
+ ## eBPF Compatability Status
+ .
+ - Alpine: fails
+ .
+ <!-- # 2025-02-09T01:11:52.642742Z  INFO          main endura::bpf: attaching
+ program: security_task_free
+ # 2025-02-09T01:11:53.019835Z ERROR          main endura: command failed
+ error=server start failed
+ #
+ # Caused by:
+ #     0: ebpf run
+ #     1: attach fentry "security_task_free" source=Some(Error { context: "ebpf
+ run", source: attach fentry "security_task_free" }) backtrace=disabled
+ backtrace
+ # [error] server did not start successfully
+ # 2025-02-09T01:12:07.725980Z ERROR main endura: command failed error=stop
+ server failed -->
+ .
+ ## ISSUE: Who/what is allowed to kill our own process? use our socket?
+     - Use a special group?
+ .
+ ## BUG: mode derive failed
+ .
+ - not all events getting processed before job is removed
+ - temporary workaround in job stop command:
+ .
+     // FIXME: best effort to allow processing of remaining events
+     std::thread::sleep(Duration::from_secs(3));
+ .
+ ## BUG: SELinux permissions from container development
+ - running this seems to work: `sudo chcon -Rt container_file_t $(BASEDIR)
+ >/dev/null;`
+ - running in non-selinux envs causes the build to fail with errors like the
+ following in ubuntu: `chcon: can't apply partial context to unlabeled file
+ 'README.md'`
+ .
+ ## QUESTION: musl threading performance issues
+ .
+ - see:
+ https://www.linkedin.com/pulse/testing-alternative-c-memory-allocators-pt-2-musl-mystery-gomes/
+ - adopt mimalloc? already implemented. no metrics to assess impact!!
+

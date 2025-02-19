@@ -1,13 +1,13 @@
 Package: endura-build-tools
-Version: 0.1.13.bf7babb
+Version: 0.1.14.f2b06d8
 Architecture: amd64
 Maintainer: Infrared Security, LLC.
-Installed-Size: 9900
-Filename: ./endura-build-tools_0.1.13.bf7babb_amd64.deb
-Size: 2686436
-MD5sum: 0bef07fd58d9891c51a6c61a7411921e
-SHA1: c0e6b55d5ea494dcb9b130c28f312bd67f502735
-SHA256: e635d7dfedc9e755b37af901f0c5cd305d528255bad0bca76f4df3a8427de59a
+Installed-Size: 10128
+Filename: ./endura-build-tools_0.1.14.f2b06d8_amd64.deb
+Size: 2702368
+MD5sum: 3fd0d6461cd0f062ce23177ff4cf9cb5
+SHA1: 6b9114ad38bc577bcd123280441be15784236882
+SHA256: f9020964886f33a295969f8eeaed263da43d7f8e0c45d8409eeffecb1871725c
 Section: Development
 Priority: optional
 Description: build tools
@@ -24,26 +24,23 @@ Description: build tools
  - **ENDURA_TEAM_SERVER**: https://your.team.server (default: undefined, cli
  supported)
  .
- ## eBPF Compatability Status
+ ## ADDITIONAL CHECKS:
  .
- - Alpine: fails
- .
- <!-- # 2025-02-09T01:11:52.642742Z  INFO          main endura::bpf: attaching
- program: security_task_free
- # 2025-02-09T01:11:53.019835Z ERROR          main endura: command failed
- error=server start failed
- #
- # Caused by:
- #     0: ebpf run
- #     1: attach fentry "security_task_free" source=Some(Error { context: "ebpf
- run", source: attach fentry "security_task_free" }) backtrace=disabled
- backtrace
- # [error] server did not start successfully
- # 2025-02-09T01:12:07.725980Z ERROR main endura: command failed error=stop
- server failed -->
+ - Inventory of libraries being used
+ - Execution of deleted binaries: check if inode == 0
+ - Fileless Execution:
+     -> track fds created via memfd_create per process
+     -> check if filename starts with "/proc/self/fd/" or "/dev/fd/" indicating
+ executing from fd
+     -> extract fd from filename and see if found within "track fds" map
  .
  ## ISSUE: Who/what is allowed to kill our own process? use our socket?
-     - Use a special group?
+     [x] only root users not bound to a job can kill endura
+     -> only root users not bound to a job can interact with socket
+ .
+ ## ISSUE: not propagating attrs across forks
+ - create a "tp/sched/sched_process_fork" eBPF program and copy job references
+ from parent to child
  .
  ## BUG: mode derive failed
  .
@@ -52,13 +49,6 @@ Description: build tools
  .
      // FIXME: best effort to allow processing of remaining events
      std::thread::sleep(Duration::from_secs(3));
- .
- ## BUG: SELinux permissions from container development
- - running this seems to work: `sudo chcon -Rt container_file_t $(BASEDIR)
- >/dev/null;`
- - running in non-selinux envs causes the build to fail with errors like the
- following in ubuntu: `chcon: can't apply partial context to unlabeled file
- 'README.md'`
  .
  ## QUESTION: musl threading performance issues
  .
